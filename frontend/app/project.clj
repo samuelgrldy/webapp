@@ -39,7 +39,9 @@
    [binaryage/devtools "1.0.6"]
    [day8.re-frame/re-frame-10x "1.5.0"]
    [arttuka/reagent-material-ui "5.11.12-0"]
-   [cljs-ajax "0.7.5"]
+   [cljs-ajax "0.8.4"]
+
+   [day8.re-frame/http-fx "0.2.4"]
 
    ;; file/formatting and development utilities
    [org.clojure/tools.namespace "1.4.4"]

@@ -6,3 +6,8 @@
  ::name
  (fn [db]
    (:name db)))
+
+(re-frame/reg-sub
+  :current-page
+  (fn [db _]
+    (:current-page db)))
