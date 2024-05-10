@@ -22,10 +22,10 @@
   [db-component section]
   (let [db-instance (:db db-component)
         section-with-id (assoc section :_id (uuid))]
-    (info "====Adding a section to the db====")
-    (doto
-      (pres (mc/insert-and-return db-instance "sections" section-with-id))
-      (info "Section added to the db with this following data:"))))
+    (info "====Adding the following section to the db====")
+    (pres section-with-id)
+    (info "=============================================")
+    (mc/insert-and-return db-instance "sections" section-with-id)))
 
 (defn add-sections
   "Inserts batch of sections to the db and adding their own uuid"
@@ -41,10 +41,10 @@
   [db-component proset]
   (let [db-instance (:db db-component)
         proset-with-id (assoc proset :_id (uuid))]
-    (doto
-      (mc/insert-and-return db-instance "prosets" proset-with-id)
-      (info "Proset added to the db with this following data:
-       " proset-with-id))))
+    (info "====Adding the following proset to the db====")
+    (pres proset-with-id)
+    (info "=============================================")
+    (mc/insert-and-return db-instance "prosets" proset-with-id)))
 
 (defn deep-delete-article
   "Deletes an article, its sections, and its proset based on the article id"

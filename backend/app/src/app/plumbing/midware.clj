@@ -25,3 +25,11 @@
      :body    {:status  "error"
                :message "Failed to authenticate, please include the passcode in the headers.Authorization"}}))
 
+(defn backware-testing
+  "Just a testing midware"
+  [fun db request]
+  (info "=======================================================================")
+  (info "URI : " (:uri request))
+  (merge {:status 200
+          :headers {"Content-type" "application/json"}}
+         (fun db request)))

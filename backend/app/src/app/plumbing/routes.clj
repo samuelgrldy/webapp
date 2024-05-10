@@ -1,7 +1,8 @@
 (ns app.plumbing.routes
   (:require [app.utils :refer :all]
             [app.plumbing.midware :as midware]
-            [reitit.ring :as ring]))
+            [reitit.ring :as ring]
+            [app.logic.ctrl :as ctrl]))
 
 (defn api-routes
   "APIs specifically for backoffice needs"
@@ -12,10 +13,15 @@
     ;;(books-routes/api-routes db midware)
     ]])
 
+(defn article-routes
+  "API routes specifically for article needs"
+  [db midware]
+  ["/article"
+   ["/generate" {:post (partial midware/backware-testing ctrl/gen-article db)}]])
+
 (defn create-routes
   "Creates the whole routes for the system"
   [db]
   (ring/router
     [(api-routes db midware/backware)
-     ;;(gen/generator-routes db)
-     ]))
+     (article-routes db midware/backware)]))

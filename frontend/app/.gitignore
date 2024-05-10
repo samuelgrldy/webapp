@@ -4,6 +4,8 @@
 /*-init.clj
 /*.log
 
+.idea/
+
 # Leiningen
 /.lein-*
 /.nrepl-port

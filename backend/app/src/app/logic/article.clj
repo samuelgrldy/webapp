@@ -30,7 +30,8 @@
                         (gen/gen-content (:openai db-component))
                         (#(assoc % :article-id article-id))
                         (db/add-section db-component)
-                        (generate-proset db-component))))))))
+                        (generate-proset db-component))))))
+    (info "Article generated successfully.")))
 
 (defn generate-proset
   "Generate a proset and adding it to the database"

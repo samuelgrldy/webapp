@@ -5,7 +5,7 @@
    [app.events :as events]
    [app.views :as views]
    [app.config :as config]
-   ))
+   [day8.re-frame.http-fx]))
 
 
 (defn dev-setup []
