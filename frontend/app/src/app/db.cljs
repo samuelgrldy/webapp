@@ -1,5 +1,8 @@
 (ns app.db)
 
 (def default-db
-  {:current-page :main})
+  {:current-page :main
+   :base-url "http://localhost:8000"
+   :form-username ""
+   :form-name ""})
 

@@ -46,6 +46,11 @@
          (#(assoc % :content-id content-id))
          (db/add-proset db-component))))
 
+(defn delete-article
+  "Delete an article, its sections, and its proset based on the article id"
+  [db-component article-id]
+  (db/deep-delete-article db-component article-id))
+
 (def sample-article-prompt
   {:title "Why we feel what we feel?"
    :n-sections 3

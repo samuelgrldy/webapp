@@ -60,7 +60,7 @@
 
 ;;===========user================
 
-(defn register-user
+(defn add-user
   "Inserts a user to the db"
   [db-component {:keys [name username]}]
   (let [db-instance (:db db-component)
@@ -68,4 +68,6 @@
               :name name
               :username username}]
     (mc/insert-and-return db-instance "users" user)))
+
+
 

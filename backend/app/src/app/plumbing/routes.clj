@@ -16,8 +16,11 @@
 (defn article-routes
   "API routes specifically for article needs"
   [db midware]
+  ["/login"             {:post (partial midware/backware-testing ctrl/login-user db)}]
+  ["/register"          {:post (partial midware/backware-testing ctrl/reg-user db)}]
   ["/article"
-   ["/generate" {:post (partial midware/backware-testing ctrl/gen-article db)}]])
+   ["/generate-article" {:post (partial midware/backware-testing ctrl/gen-article db)}]
+   ["delete-article"    {:delete (partial midware/backware-testing ctrl/delete-article db)}]])
 
 (defn create-routes
   "Creates the whole routes for the system"
@@ -25,3 +28,7 @@
   (ring/router
     [(api-routes db midware/backware)
      (article-routes db midware/backware)]))
+
+
+
+
