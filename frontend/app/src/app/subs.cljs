@@ -8,7 +8,7 @@
    (:name db)))
 
 (re-frame/reg-sub
-  :current-page
+  ::current-page
   (fn [db _]
     (:current-page db)))
 
@@ -19,11 +19,12 @@
 
 
 (re-frame/reg-sub
-  :form-username
+  ::form-username
   (fn [db _]
     (:form-username db)))
 
+
 (re-frame/reg-sub
-  :form-name
+  ::form-name
   (fn [db _]
     (:form-name db)))

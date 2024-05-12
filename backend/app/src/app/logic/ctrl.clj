@@ -1,6 +1,7 @@
 (ns app.logic.ctrl
   (:require [app.logic.article :as article]
             [app.logic.user :as user]
+            [app.logic.proset :as proset]
             [app.utils :refer :all]))
 
 
@@ -20,15 +21,24 @@
 
 (defn get-articles
   "Controller for getting all articles"
-  [db]
-  (info "Initiating get articles...")
-  (article/get-all-articles db))
+  [db req]
+  (info "Initiating get-articles-controller...")
+  (let [articles (article/get-all-articles db)]
+    {:body {:data articles}}))
 
 (defn delete-article
   "Controller for deleting article"
   [db req]
   (let [{:keys [_id]} (get req :body)]
     (article/delete-article db _id)))
+
+;;===============proset related ctrl================
+
+(defn get-article-prosets
+  [db req]
+  (info "Initiating get-article-prosets...")
+  ())
+
 
 ;;===============user related ctrl================
 

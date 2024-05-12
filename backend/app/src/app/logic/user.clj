@@ -16,8 +16,13 @@
 
 (defn login-user
   "Logs in a user"
-  [db-component user]
-  (let [username (get user :username)]
+  [db-component user-data]
+  (let [username (get user-data :username)
+        name (get user-data :name)]
     (if (not (empty? (db/find-user db-component username)))
-      (info "Username found. Logging in...")
-      (info "Register dulu cuy"))))
+      {:body {:status "ok"
+       :message "Login successful"
+       :username username
+       :name name}}
+      {:body {:status "error"
+       :message "Username not found"}})))

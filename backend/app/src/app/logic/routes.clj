@@ -21,22 +21,18 @@
           :headers {"Content-Type" "application/json"}}
          (fun db req)))
 
-(defn midware-testing-get
-  [fun db]
-  (info "Getting into midware-testing-get")
-  {:status  200
-   :headers {"Content-Type" "application/json"}
-   :body    (fun db)})
 
 (defn article-routes
   "Routes for APIs"
   [db]
   [""
    ["/register" {:post (partial midware-testing ctrl/reg-user db)}]
-   ["/login" {:post (partial midware-testing ctrl/login-user db)}]
+   ["/login" {:post (partial midware-testing ctrl/login-user db)}] ;;to do: set frontend buat local and return
    ["/article"
-    ["/articles" {:get (partial midware-testing-get ctrl/get-articles db)}] ;;masih gabisa
+    ["/articles" {:get (partial midware-testing ctrl/get-articles db)}] ;;masih gabisa
     ["/generate" {:post (partial midware-testing ctrl/gen-article db)}]
     ["/delete" {:post (partial midware-testing ctrl/delete-article db)}]]
+   ["/practice"
+    ["/proset" {:get (partial midware-testing ctrl/get-article-prosets db)}]]
    ["/generate-section-testing" {:post (partial article-api-check db)}]
    ["/article-testing" {:get midware/api-check}]])

@@ -2,7 +2,5 @@
 
 (def default-db
   {:current-page :main
-   :base-url "http://localhost:8000"
-   :form-username ""
-   :form-name ""})
+   :base-url "http://localhost:8000"})
 
