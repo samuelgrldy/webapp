@@ -23,6 +23,20 @@
                    let-pres)]
     (get-result result)))
 
+(defn gen-sections-testing
+  "Generate sections of an article"
+  [openai {:keys [n-sections title prompt]}]
+  (let [gen-fn (:openai openai)
+        result (-> (gen-fn {:model    :gpt-3
+                            :messages (gen-sections-prompt
+                                        {:n-sections n-sections
+                                         :title      title
+                                         :prompt     prompt})})
+                   (try (catch Exception e
+                          (pres e)))
+                   let-pres)]
+    result))
+
 (defn gen-content-extender
   "Generate prompt for extended content of a section"
   [openai {:keys [article-title section-title section-description]}]

@@ -7,6 +7,13 @@
 
 ;;===========articles================
 
+(defn get-all-articles
+  "Get all articles from the db"
+  [db-component]
+  (info "Initiating get-all-articles from db")
+  (let [db-instance (:db db-component)]
+    (mc/find-maps db-instance "articles" {})))
+
 (defn add-article
   "Inserts a book to the db"
   [db-component {:keys [title prompt n-sections]}]

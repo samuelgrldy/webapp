@@ -51,10 +51,22 @@
   [db-component article-id]
   (db/deep-delete-article db-component article-id))
 
+;;bikin fungsi get all article for certain user (consult dulu)
+
+(defn get-all-articles
+  "Get all articles from the database"
+  [db-component]
+  (db/get-all-articles db-component))
+
 (def sample-article-prompt
   {:title "Why we feel what we feel?"
    :n-sections 3
    :prompt "Jembrengin kenapa kita ngerasain emosi2 yang sekarang kita rasain dari perspektif evolutionary psychology. gue pengen kebahas in-depth juga beberapa perasaan 'negatif' kyk marah, sedih, depressed, dll dan kenapa perasaan itu justru punya evolutionary advantages to the point masih survive sampe sekarang"})
+
+(def sample-article-prompt2
+  {:title "The visible world of immune system"
+   :n-sections 4
+   :prompt "Jembrengin hal-hal yang berhubungan sama immune system ke 'macro world' dari perspektif evolutionary biology and dikit2 evolutionary anthropology, kyk misalnya bau badan kita yg justru ngebantu kita pilih 'biologically compatible' partner."})
 
 (def sample-proset-prompt
   {:title "Conclusion"

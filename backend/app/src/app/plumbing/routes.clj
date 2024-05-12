@@ -2,32 +2,52 @@
   (:require [app.utils :refer :all]
             [app.plumbing.midware :as midware]
             [reitit.ring :as ring]
-            [app.logic.ctrl :as ctrl]))
+            [app.logic.routes :as logic]))
+
+
+(defn midware-testing
+  [fun db req]
+  {:status  200
+   :headers {"Content-Type" "application/json"}
+   :body    (fun db req)})
+
+(defn midware-testing-get
+  [fun db]
+  (info "Getting into midware-testing-get")
+  {:status  200
+   :headers {"Content-Type" "application/json"}
+   :body    (fun db)})
+
+(defn api-check
+  [req]
+  {:status  200
+   :headers {"Content-Type" "application/json"}
+   :body    {:status  "ok"
+             :message "Backsite API is working"
+             :request (str req)}})
+
+(defn article-api-check
+  "Helper function for testing api"
+  [req]
+  (println "Getting into api-check for article routes")
+  {:status  200
+   :headers {"Content-Type" "application/json"}
+   :body    {:status  "ok"
+             :message "Articles API is running fine"}})
 
 (defn api-routes
   "APIs specifically for backoffice needs"
   [db midware]
   ["/backsite-api"
    ["/v1"
-    ["/health" {:get midware/api-check}]
-    ;;(books-routes/api-routes db midware)
-    ]])
-
-(defn article-routes
-  "API routes specifically for article needs"
-  [db midware]
-  ["/login"             {:post (partial midware/backware-testing ctrl/login-user db)}]
-  ["/register"          {:post (partial midware/backware-testing ctrl/reg-user db)}]
-  ["/article"
-   ["/generate-article" {:post (partial midware/backware-testing ctrl/gen-article db)}]
-   ["delete-article"    {:delete (partial midware/backware-testing ctrl/delete-article db)}]])
+    ["/health" {:get api-check}]]])
 
 (defn create-routes
   "Creates the whole routes for the system"
   [db]
   (ring/router
-    [(api-routes db midware/backware)
-     (article-routes db midware/backware)]))
+    [(logic/article-routes db)
+     (api-routes db midware/backware)]))
 
 
 

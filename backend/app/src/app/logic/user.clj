@@ -9,15 +9,17 @@
   [db-component user]
   (let [db-instance (:db db-component)
         username (get user :username)]
-    (if (mc/find-maps db-instance "users" {:username username})
-      (error "Username already exists.")
-      (db/add-user db-instance user))))
+    (info "Checking this username...")
+    (pres {:username username})
+    (if (empty? (mc/find-maps db-instance "users" {:username username}))
+      (db/add-user db-component user)
+      (error "Whoops, username already exists"))))
 
 (defn login-user
   "Logs in a user"
   [db-component user]
   (let [db-instance (:db db-component)
         username (get user :username)]
-    (if (mc/find-maps db-instance "users" {:username username})
-      (info "Login successful")
-      (error "Username does not exist."))))
+    (if (not (empty? (mc/find-maps db-instance "users" {:username username})))
+      (info "Username found. Logging in...")
+      (info "Register dulu cuy"))))

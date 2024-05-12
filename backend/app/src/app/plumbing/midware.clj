@@ -4,19 +4,18 @@
 
 (defn api-check
   [req]
+  (info "Masuk ke API Check")
   {:status  200
    :headers {"Content-Type" "application/json"}
    :body    {:status  "ok"
              :message "Backsite API is working"}})
-
-
 
 (defn backware
   "Create a base-auth function to be universally used across the backsite"
   [fun db request]
   (info "=======================================================================")
   (info "URI : " (:uri request))
-  (if (= (get-in request [:headers "Authorization"]) (str "Bearer " (:passcode db)))
+  (if (= (get-in request [:headers "authorization"]) (str "Bearer " (:passcode db)))
     (merge {:status  200
             :headers {"Content-type" "application/json"}}
            (fun db request))
