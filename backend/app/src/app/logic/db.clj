@@ -87,7 +87,7 @@
 
 ;;===========proset==============
 
-(defn get-proset-by-id
+(defn get-prosets-by-id
   "Get all the proset based on the article id"
   [db-component article-id]
   (let [db-instance (:db db-component)
@@ -96,6 +96,24 @@
            (let [query {:content-id section-id}]
              (mc/find-one-as-map db-instance "prosets" query)))
          section-ids)))
+
+(defn get-proset-by-id
+  "Get the proset based on the proset id"
+  [db-component proset-id]
+  (let [db-instance (:db db-component)
+        query {:_id proset-id}]
+    (mc/find-one-as-map db-instance "prosets" query)))
+
+(defn store-answer
+  "store the user answers to the db"
+  [db-component {:keys [user-id proset-id detailed-result]}]
+  (let [db-instance (:db db-component)
+        user-answer {:_id (uuid)
+                     :user-id user-id
+                     :proset-id proset-id
+                     :detailed-result detailed-result}]
+    (mc/insert-and-return db-instance "user-answers" user-answer)))
+
 
 ;;===========user================
 
