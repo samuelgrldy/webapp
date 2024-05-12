@@ -5,21 +5,19 @@
 
 
 (defn register-user
-  "Registers a use to the db"
+  "Registers a user to the db"
   [db-component user]
-  (let [db-instance (:db db-component)
-        username (get user :username)]
+  (let [username (get user :username)]
     (info "Checking this username...")
     (pres {:username username})
-    (if (empty? (mc/find-maps db-instance "users" {:username username}))
+    (if (empty? (db/find-user db-component username))
       (db/add-user db-component user)
       (error "Whoops, username already exists"))))
 
 (defn login-user
   "Logs in a user"
   [db-component user]
-  (let [db-instance (:db db-component)
-        username (get user :username)]
-    (if (not (empty? (mc/find-maps db-instance "users" {:username username})))
+  (let [username (get user :username)]
+    (if (not (empty? (db/find-user db-component username)))
       (info "Username found. Logging in...")
       (info "Register dulu cuy"))))

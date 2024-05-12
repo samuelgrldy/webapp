@@ -65,6 +65,38 @@
     (map #(mc/remove db-instance "prosets" {:_id %}) section-ids)
     (info "Article, sections, and prosets related to '" article-id "' deleted successfully.")))
 
+;;=====helper functions=========
+
+(defn get-section-ids
+  "Get the section ids based on the article id"
+  [db-component article-id]
+  (let [db-instance (:db db-component)
+        query {:article-id article-id}]
+    (map :_id (mc/find-maps db-instance "sections" query))))
+
+(defn get-proset-ids
+  "Get the proset ids based on the article id
+  Receive a map of section ids to return a map of proset ids"
+  [db-component article-id]
+  (let [db-instance (:db db-component)
+        section-ids (get-section-ids db-component article-id)]
+    (map (fn [section-id]
+           (let [query {:content-id section-id}]
+             (map :_id (mc/find-one-as-map db-instance "prosets" query))))
+         section-ids)))
+
+;;===========proset==============
+
+(defn get-proset-by-id
+  "Get all the proset based on the article id"
+  [db-component article-id]
+  (let [db-instance (:db db-component)
+        section-ids (get-section-ids db-component article-id)]
+    (map (fn [section-id]
+           (let [query {:content-id section-id}]
+             (mc/find-one-as-map db-instance "prosets" query)))
+         section-ids)))
+
 ;;===========user================
 
 (defn add-user
@@ -75,6 +107,12 @@
               :name name
               :username username}]
     (mc/insert-and-return db-instance "users" user)))
+
+(defn find-user
+  "Find a user based on the username"
+  [db-component username]
+  (let [db-instance (:db db-component)]
+    (mc/find-maps db-instance "users" {:username username})))
 
 
 
