@@ -36,76 +36,81 @@
 ;;rewriting this stuff
 (re-frame/reg-event-fx
   ::register-user
-  (fn [{:keys [db]} _]                    ;; the first param will be "world"
-    {:db   (assoc db :loading true)   ;; causes the twirly-waiting-dialog to show??
-     :http-xhrio {:method          :post
-                  :uri             (str base-url "/register")
-                  :timeout         8000                                           ;; optional see API docs
-                  :response-format (ajax/json-response-format {:keywords? true})  ;; IMPORTANT!: You must provide this.
-                  :on-success      [::register-success]
-                  :on-failure      [::register-failure]}}))
+  (fn [{:keys [db]}]
+    (let [username (re-frame/subscribe [::subs/form-username])
+          name     (re-frame/subscribe [::subs/form-name])]
+      {:db         (assoc db :loading true)
+       :http-xhrio {:method          :post
+                    :uri             (str base-url "/register")
+                    :params          {:username @username :name @name}
+                    :format          (ajax/json-request-format)
+                    :response-format (ajax/json-response-format {:keywords? true})
+                    :on-success      [::register-success]
+                    :on-failure      [::register-failure]}})))
 
-(re-frame/reg-event-fx
+(re-frame/reg-event-db
   ::register-success
   (fn [db [_ response]]
-    (js/console.log "Register Success:" response)
-    (println "Register Success with this response: " response)
-    (-> db
-        (assoc :loading false))))
+    (let [username (:username response)
+          status   (:status response)
+          message  (:message response)]
+      (case status
+        "ok" (do
+               (println "Register success")
+               (re-frame/dispatch [::navigate :login])
+               (u/set-storage :username username)
+               (assoc db :loading false))
+        "error" (do
+                  (println "Register failed")
+                  (js/alert message)
+                  (assoc db :loading false))))))
 
-(re-frame/reg-event-fx
+(re-frame/reg-event-db
   ::register-failure
-  (fn [_ response]
-    (js/console.log "Register Failed:" response)
-    {:console-log "Registration failed"}))
+  (fn [db [_ response]]
+    (println "Register failed")
+    (assoc db :loading false)))
 
 ;;login event
 (re-frame/reg-event-fx
   ::login-user
   (fn [{:keys [db]}]
     (let [username (re-frame/subscribe [::subs/form-username])
-          name    (re-frame/subscribe [::subs/form-name])]
+          name     (re-frame/subscribe [::subs/form-name])]
       {:db         (assoc db :loading true)
        :http-xhrio {:method          :post
-                  :uri             (str base-url "/login")
-                  :params          {:username @username :name @name}
-                  :format          (ajax/json-request-format)
-                  :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success      [::login-success]
-                  :on-failure      [::login-failure]}})))
+                    :uri             (str base-url "/login")
+                    :params          {:username @username :name @name}
+                    :format          (ajax/json-request-format)
+                    :response-format (ajax/json-response-format {:keywords? true})
+                    :on-success      [::login-success]
+                    :on-failure      [::login-failure]}})))
 
 (re-frame/reg-event-db
   ::login-success
   (fn [db [_ response]]
-    (let [username (:username response)]
-      (println username)
-      (println response)
-      (u/set-storage :username username)
-      (assoc db :loading false))
-    (re-frame/dispatch [::navigate :home])))
+    (let [username (:username response)
+          status   (:status response)
+          message  (:message response)]
+      (case  status
+        "ok" (do
+               (println "Login success")
+               (println username)
+               (println response)
+               (u/set-storage :username username)
+               (re-frame/dispatch [::navigate :home])
+               (assoc db :loading false))
+        "error" (do
+                  (println "Login failed")
+                  (js/alert message)
+                  (assoc db :loading false))))))
 
-;;login and register success and failure events
-(re-frame/reg-event-fx
+(re-frame/reg-event-db
   ::login-failure
   (fn [db [_ response]]
-    {:console-log "Login failed"}))
+    (println "Login failed")
+    (assoc db :loading false)))
 
-(re-frame/reg-event-fx
-  ::show-articles                                           ;;ini impostor, buat test doang
-  (fn [{:keys [db]} _]
-    {:db         (assoc db :loading true)
-     :http-xhrio {:method          :get
-                  :uri             (str base-url "/article/articles")
-                  :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success      [::show-articles]
-                  :on-failure      [:login-failure]}}))
-
-;;testing for showing articles
-(re-frame/reg-event-fx
-  ::show-articles
-  (fn [db [_ response]]
-    (let [articles (:data response)]
-      (println articles))))
 
 
 
