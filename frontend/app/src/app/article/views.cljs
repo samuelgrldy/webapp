@@ -24,4 +24,4 @@
     [:div
      [:h1 "Placeholder for view article page"]
      [:button {:on-click #(re-frame/dispatch [::events/get-all-articles])} "View Articles"]
-     (display-articles @articles)])) 
+     (display-articles @articles)]))
