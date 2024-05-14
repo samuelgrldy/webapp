@@ -7,6 +7,23 @@
   [no]
   ((mapv str "ABCDEFGHIJK") no))
 
+(defn html->hiccup [html]
+  (let [parser (js/DOMParser.)
+        doc (.parseFromString parser html "text/html")
+        body (.-body doc)]
+
+    (defn element->hiccup [el]
+      (if (instance? js/Text el)
+        (.-nodeValue el)
+        (let [tag (keyword (.toLowerCase (.-tagName el)))
+              attrs (into {} (for [attr (array-seq (.-attributes el))]
+                               [(keyword (.toLowerCase (.-name attr))) (.-value attr)]))
+              children (array-seq (.-childNodes el))]
+          (into [tag attrs] (map element->hiccup children)))))
+
+    (element->hiccup body)))
+
+
 (defn $
   "Get element by id"
   [id]

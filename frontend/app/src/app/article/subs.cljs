@@ -17,4 +17,11 @@
   (fn [db _]
     (:selected-article-id db)))
 
+(re-frame/reg-sub
+  ::form-state
+  (fn [db _]
+    (:form-state db)))
+
+
+
 

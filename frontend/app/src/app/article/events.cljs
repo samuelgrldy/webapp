@@ -15,6 +15,11 @@
     (assoc db :selected-article-id article-id
               :sections nil))) ;; Reset sections when selecting a new article
 
+(re-frame/reg-event-db
+  ::deselect-article
+  (fn [db _]
+    (assoc db :selected-article-id nil
+              :sections nil))) ;; Reset sections when deselecting an article
 
 (re-frame/reg-event-fx
   ::get-all-articles
@@ -30,8 +35,7 @@
   ::view-articles-success
   (fn [db [_ response]]
     (let [articles (:data response)]
-      (do (js/alert "successfully getting all articles")
-          (println articles)
+      (do (println articles)
           (assoc db :articles articles)))))
 
 (re-frame/reg-event-fx
@@ -58,9 +62,48 @@
   (fn [db [_ response]]
     (assoc db :sections (get-in response [:data]))))
 
+;;=================generating related events===============
 
-;;navigate?
 (re-frame/reg-event-db
-  ::navigate
-  (fn [db [_ page]]
-    (assoc db :current-page page)))
+  ::update-form-field
+  (fn [db [_ field value]]
+    (assoc-in db [:form-state field] value)))
+
+(re-frame/reg-event-db
+  ::reset-form
+  (fn [db _]
+    (assoc db :form-state {:title ""
+                           :prompt ""
+                           :n-sections ""})))
+
+(re-frame/reg-event-fx
+  ::generate-article
+  (fn [{:keys [db]} [_ form-state]]
+    (println "Initiating generate-article event...")
+    (let [{:keys [title prompt n-sections]} form-state]
+      {:http-xhrio {:method          :post
+                    :uri             (str base-url "/article/generate")
+                    :params          {:prompt prompt
+                                      :title title
+                                      :n-sections (js/parseInt n-sections)}
+                    :format          (ajax/json-request-format)
+                    :response-format (ajax/json-response-format {:keywords? true})
+                    :on-success      [::generate-article-success]
+                    :on-failure      [::generate-article-failure]}})))
+
+(re-frame/reg-event-db
+  ::generate-article-success
+  (fn [db [_ response]]
+    (println "generate-article success!")
+    (-> db
+        (assoc :current-page :view)))) ;; Navigate to view all articles page
+
+(re-frame/reg-event-db
+  ::generate-article-failure
+  (fn [db [_ error]]
+    (-> db
+        (assoc :loading false) ;; Set loading to false on failure
+        (assoc :status "error")
+        (assoc :message (str "Error: " error)))))
+
+

@@ -4,49 +4,74 @@
    [app.subs :as subs]
    [app.article.subs :as a-subs]
    [app.events :as events]
+   [app.components :as comp]
    [app.article.views :as article-views]))
 
 
 (defn main-page []
-  [:div
-   [:h1 "Welcome, whoever you are!"]
-   [:button {:on-click #(re-frame/dispatch [::events/navigate :login])} "Login"]
-   [:button {:on-click #(re-frame/dispatch [::events/navigate :register])} "Register"]])
+  [:div.container
+   [:div.row.justify-content-center.mt-5
+    [:div.col-md-8.text-center
+     [:h1 "Welcome, whoever you are!"]
+     [:div.mt-4
+      [:button.btn.btn-primary.mr-2
+       {:on-click #(re-frame/dispatch [::events/navigate :login])} "Login"]
+      [:button.btn.btn-secondary.ml-2
+       {:on-click #(re-frame/dispatch [::events/navigate :register])} "Register"]]]]])
+
 
 (defn login-page []
   (let [username (re-frame/subscribe [::subs/form-username])
         name     (re-frame/subscribe [::subs/form-name])
         loading  (re-frame/subscribe [::subs/loading])]
-    [:div
-     [:h2 "Login Page"]
-     [:input {:placeholder "Username"
-              :type "text"
-              :value @username
-              :on-change #(re-frame/dispatch [::events/update-username (-> % .-target .-value)])}]
-     [:input {:placeholder "Name"
-              :type "text"
-              :value @name
-              :on-change #(re-frame/dispatch [::events/update-name (-> % .-target .-value)])}]
-     [:button {:on-click #(re-frame/dispatch [::events/login-user @username @name])} "Login"]
-     (when @loading "Logging in...")]))
+    [:div.container
+     [:h2 "Login"]
+     [:form
+      [:div.form-group
+       [:label {:for "inputUsername"} "Username"]
+       [:input.form-control
+        {:type "text"
+         :id "inputUsername"
+         :placeholder "Username"
+         :value @username
+         :on-change #(re-frame/dispatch [::events/update-username (-> % .-target .-value)])}]]
+      [:div.form-group
+       [:label {:for "inputName"} "Name"]
+       [:input.form-control
+        {:type "text"
+         :id "inputName"
+         :placeholder "Name"
+         :value @name
+         :on-change #(re-frame/dispatch [::events/update-name (-> % .-target .-value)])}]]
+      [:button.btn.btn-primary {:type "button" :on-click #(re-frame/dispatch [::events/login-user @username @name])} "Login"]
+      (when @loading [:div "Logging in..."])]]))
+
 
 (defn register-page []
   (let [username (re-frame/subscribe [::subs/form-username])
-        name (re-frame/subscribe [::subs/form-name])
-        loading (re-frame/subscribe [::subs/loading])]
-    [:div
-     [:h2 "Register Page"]
-     [:input {:placeholder "Username"
-              :type "text"
-              :value @username
-              :on-change #(re-frame/dispatch [::events/update-username (-> % .-target .-value)])}]
-     [:input {:placeholder "Name"
-              :type "text"
-              :value @name
-              :on-change #(re-frame/dispatch [::events/update-name (-> % .-target .-value)])}]
-     [:button {:on-click #(re-frame/dispatch [::events/register-user
-                                              @username @name])} "Register"]
-     (when @loading "Registering...")]))
+        name     (re-frame/subscribe [::subs/form-name])
+        loading  (re-frame/subscribe [::subs/loading])]
+    [:div.container
+     [:h2 "Register"]
+     [:form
+      [:div.form-group
+       [:label {:for "inputUsername"} "Username"]
+       [:input.form-control
+        {:type "text"
+         :id "inputUsername"
+         :placeholder "Username"
+         :value @username
+         :on-change #(re-frame/dispatch [::events/update-username (-> % .-target .-value)])}]]
+      [:div.form-group
+       [:label {:for "inputName"} "Name"]
+       [:input.form-control
+        {:type "text"
+         :id "inputName"
+         :placeholder "Name"
+         :value @name
+         :on-change #(re-frame/dispatch [::events/update-name (-> % .-target .-value)])}]]
+      [:button.btn.btn-primary {:type "button" :on-click #(re-frame/dispatch [::events/register-user @username @name])} "Register"]
+      (when @loading [:div "Registering..."])]]))
 
 
 (defn home-page []
@@ -58,20 +83,28 @@
       [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/navigate :generate])} "Generate Article"]
       [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/navigate :view])} "View Articles"]]]))
 
+(defn test-page []
+  [:div
+   [:h1 "Boo."]])
+
 (defn root-component []
   (let [current-page (re-frame/subscribe [::subs/current-page])
         selected-article-id (re-frame/subscribe [::a-subs/selected-article-id])]
     (fn []
-      (case @current-page
+      [:div
+       [:div.content
+        {:style {:padding-bottom "60px"}}
+        (case @current-page
         :main (main-page)
         :login (login-page)
         :register (register-page)
         :home (home-page)
         :generate (article-views/generate-page)
-        :view (if (not (nil? @selected-article-id))
+        :view (if (some? @selected-article-id)
                 (article-views/article-page @selected-article-id)
-                (article-views/view-article-page))
-        (main-page)))))
+                (article-views/view-all-article-page))
+        (main-page))]
+       [comp/footer]])))
 
 
 

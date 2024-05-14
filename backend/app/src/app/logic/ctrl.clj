@@ -9,15 +9,17 @@
   "Controller for generating article"
   [db req]
   (info "Initiating generate-article controller...")
-  (let [{:keys [title n-sections prompt]} (get req :body)]
+  (let [{:keys [title n-sections prompt]} (get req :body)
+        ;;generating article and return the status
+        generating-status (article/generate-article db
+                                                     {:title      title
+                                                      :n-sections n-sections
+                                                      :prompt     prompt})]
     (info "received body: ")
     (pres {:title title
            :n-sections n-sections
            :prompt prompt})
-    (article/generate-article db
-                              {:title      title
-                               :n-sections n-sections
-                               :prompt     prompt})))
+    {:body {:data generating-status}}))
 
 (defn get-articles
   "Controller for getting all articles"

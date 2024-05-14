@@ -15,8 +15,23 @@
 
 (re-frame/reg-event-db
   ::navigate
-  (fn [db [_ page]]
-    (assoc db :current-page page)))
+  (fn [db [_ new-page]]
+    (let [current-page (:current-page db)]
+      (-> db
+          (assoc :current-page new-page)
+          (update :page-history conj current-page)))))
+
+(re-frame/reg-event-db
+  ::navigate-back
+  (fn [db _]
+    (let [history (:page-history db)
+          last-page (first history)]
+      (if last-page
+        (-> db
+            (assoc :current-page last-page)
+            (update :page-history pop))
+        db))))
+
 
 (def base-url (db/default-db :base-url))
 
@@ -33,7 +48,8 @@
     (assoc db :form-name name)))
 
 
-;;rewriting this stuff
+;;login and register related stuff
+
 (re-frame/reg-event-fx
   ::register-user
   (fn [{:keys [db]}]
@@ -58,7 +74,6 @@
         "ok" (do
                (println "Register success")
                (re-frame/dispatch [::navigate :login])
-               (u/set-storage :username username)
                (assoc db :loading false))
         "error" (do
                   (println "Register failed")
@@ -89,7 +104,9 @@
 (re-frame/reg-event-db
   ::login-success
   (fn [db [_ response]]
-    (let [username (:username response)
+    (let [name     (:name response)
+          username (:username response)
+          user-id  (:user-id response)
           status   (:status response)
           message  (:message response)]
       (case  status
@@ -98,8 +115,10 @@
                (println username)
                (println response)
                (u/set-storage :username username)
+               (u/set-storage :user-id user-id)
                (re-frame/dispatch [::navigate :home])
-               (assoc db :loading false))
+               (assoc db :loading false)
+               (assoc db :form-name name))
         "error" (do
                   (println "Login failed")
                   (js/alert message)

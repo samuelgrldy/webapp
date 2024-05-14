@@ -23,10 +23,13 @@
   "Logs in a user"
   [db-component user-data]
   (let [username (get user-data :username)
-        name (get user-data :name)]
-    (if (not (empty? (db/find-user db-component username)))
+        name (get user-data :name)
+        find-user (db/find-user db-component username)
+        user-id (:_id (first find-user))]
+    (if (not (empty? find-user))
       {:body {:status "ok"
               :message "Login successful"
+              :user-id user-id
               :username username
               :name name}}
       {:body {:status "error"
