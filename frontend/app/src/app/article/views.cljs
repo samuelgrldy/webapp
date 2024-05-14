@@ -8,20 +8,51 @@
   [:div
    [:h1 "Placeholder for generate page"]])
 
+
+
 (defn display-articles
   [articles]
   (if (empty? articles)
-    [:p "No articles to display rn"]
-    [:div
+    [:p "No articles to display right now"]
+    [:div.row
      (for [article articles]
-       [:div
-        [:h2 (:title article)]
-        [:p (:prompt article)]
-        [:p "Sections: " (:n-sections article)]])]))
+       [:div.col-md-4 {:class "article"}
+        [:div.card
+         [:div.card-body
+          [:h2.card-title
+           [:a {:href "#" :on-click #(do
+                                       (re-frame/dispatch [::events/select-article (:_id article)])
+                                       (re-frame/dispatch [::events/navigate :view]))}
+            (:title article)]]]]])]))
 
 (defn view-article-page []
   (let [articles (re-frame/subscribe [::subs/articles])]
-    [:div
-     [:h1 "Placeholder for view article page"]
-     [:button {:on-click #(re-frame/dispatch [::events/get-all-articles])} "View Articles"]
-     (display-articles @articles)]))
+    (re-frame/dispatch [::events/get-all-articles])
+    (fn []
+      [:div.container
+       [:h1 "List of Articles"]
+       (display-articles @articles)])))
+
+
+(defn display-sections
+  []
+  (let [sections (re-frame/subscribe [::subs/sections])]
+    (fn []
+      (if (empty? @sections)
+        [:p "No sections to display right now"]
+        [:div
+         (for [section @sections]
+           [:div
+            [:h2 (:title section)]
+            [:p (:content section)]
+            [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/start-proset (:id section)])} "Do Proset"]])]))))
+
+
+(defn article-page [article-id]
+  (let [sections (re-frame/subscribe [::subs/sections])]
+    (when (nil? @sections)
+      (re-frame/dispatch [::events/get-sections-by-article article-id]))
+    (fn []
+      [:div.container
+       [:h1 "Article Details"]
+       [display-sections]]))) ;; Use the display-sections component

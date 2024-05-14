@@ -8,16 +8,13 @@
     (:articles db)))
 
 (re-frame/reg-sub
-  ::form-title
+  ::sections
   (fn [db _]
-    (:form-title db)))
+    (:sections db)))
 
 (re-frame/reg-sub
-  ::form-prompt
+  ::selected-article-id
   (fn [db _]
-    (:form-prompt db)))
+    (:selected-article-id db)))
 
-(re-frame/reg-sub
-  ::form-n-sections
-  (fn [db _]
-    (:form-n-sections db)))
+

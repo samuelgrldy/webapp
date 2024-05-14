@@ -29,7 +29,8 @@
    ["/register" {:post (partial midware-testing ctrl/reg-user db)}]
    ["/login" {:post (partial midware-testing ctrl/login-user db)}] ;;to do: set frontend buat local and return
    ["/article"
-    ["/articles" {:get (partial midware-testing ctrl/get-articles db)}] ;;masih gabisa
+    ["/articles" {:get (partial midware-testing ctrl/get-articles db)}]
+    ["/sections" {:post (partial midware-testing ctrl/get-sections-by-article db)}]
     ["/generate" {:post (partial midware-testing ctrl/gen-article db)}]
     ["/delete" {:post (partial midware-testing ctrl/delete-article db)}]]
    ["/practice"

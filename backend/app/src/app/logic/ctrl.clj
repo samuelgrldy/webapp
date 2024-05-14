@@ -26,6 +26,14 @@
   (let [articles (article/get-all-articles db)]
     {:body {:data articles}}))
 
+(defn get-sections-by-article
+  "Controller for getting sections by article"
+  [db req]
+  (info "Initiating get-sections-by-article controller...")
+  (let [{:keys [article-id]} (get req :body)
+        sections (article/get-sections-by-article db article-id)]
+    {:body {:data sections}}))
+
 (defn delete-article
   "Controller for deleting article"
   [db req]

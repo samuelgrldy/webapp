@@ -58,6 +58,11 @@
   [db-component]
   (db/get-all-articles db-component))
 
+(defn get-sections-by-article
+  "Get all sections by article id"
+  [db-component article-id]
+  (db/get-sections-by-article-id db-component article-id))
+
 (def sample-article-prompt
   {:title "Why we feel what we feel?"
    :n-sections 3

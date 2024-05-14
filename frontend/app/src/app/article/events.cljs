@@ -9,6 +9,11 @@
 
 (def base-url (db/default-db :base-url))
 
+(re-frame/reg-event-db
+  ::select-article
+  (fn [db [_ article-id]]
+    (assoc db :selected-article-id article-id
+              :sections nil))) ;; Reset sections when selecting a new article
 
 
 (re-frame/reg-event-fx
@@ -36,6 +41,25 @@
       (js/alert "failed to get all articles")
       (println articles))))
 
+;; Event to fetch sections for a given article ID
+(re-frame/reg-event-fx
+  ::get-sections-by-article
+  (fn [{:keys [db]} [_ article-id]]
+    {:http-xhrio {:method          :post
+                  :uri             (str base-url "/article/sections")
+                  :params          {:article-id article-id}
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [::get-sections-by-article-success]
+                  :on-failure      [::get-sections-by-article-failure]}}))
+
+(re-frame/reg-event-db
+  ::get-sections-by-article-success
+  (fn [db [_ response]]
+    (assoc db :sections (get-in response [:data]))))
+
+
+;;navigate?
 (re-frame/reg-event-db
   ::navigate
   (fn [db [_ page]]

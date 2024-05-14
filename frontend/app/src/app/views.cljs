@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [app.subs :as subs]
+   [app.article.subs :as a-subs]
    [app.events :as events]
    [app.article.views :as article-views]))
 
@@ -50,14 +51,16 @@
 
 (defn home-page []
   (let [name (re-frame/subscribe [::subs/form-name])]
-    [:div
+    [:div.container
      [:h1 "Welcome, " @name "!"]
-     [:h2 "Whachu gonna do?"]
-     [:button {:on-click #(re-frame/dispatch [::events/navigate :generate])} "Generate Article"]
-     [:button {:on-click #(re-frame/dispatch [::events/navigate :view])} "View Articles"]]))
+     [:h2 "Whachu gonna do today?"]
+     [:div.btn-group {:role "group"}
+      [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/navigate :generate])} "Generate Article"]
+      [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/navigate :view])} "View Articles"]]]))
 
 (defn root-component []
-  (let [current-page (re-frame/subscribe [::subs/current-page])]
+  (let [current-page (re-frame/subscribe [::subs/current-page])
+        selected-article-id (re-frame/subscribe [::a-subs/selected-article-id])]
     (fn []
       (case @current-page
         :main (main-page)
@@ -65,8 +68,11 @@
         :register (register-page)
         :home (home-page)
         :generate (article-views/generate-page)
-        :view (article-views/view-article-page)
+        :view (if (not (nil? @selected-article-id))
+                (article-views/article-page @selected-article-id)
+                (article-views/view-article-page))
         (main-page)))))
+
 
 
 

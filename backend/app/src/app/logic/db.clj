@@ -65,6 +65,13 @@
     (map #(mc/remove db-instance "prosets" {:_id %}) section-ids)
     (info "Article, sections, and prosets related to '" article-id "' deleted successfully.")))
 
+(defn get-sections-by-article-id
+  "Get all the sections based on the article id"
+  [db-component article-id]
+  (let [db-instance (:db db-component)
+        query {:article-id article-id}]
+    (mc/find-maps db-instance "sections" query)))
+
 ;;=====helper functions=========
 
 (defn get-section-ids
