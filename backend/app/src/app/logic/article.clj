@@ -1,7 +1,9 @@
 (ns app.logic.article
   (:require [app.logic.generator :as gen]
             [app.logic.db :as db]
-            [app.utils :refer :all]))
+            [app.utils :refer :all]
+            [monger.collection :as mc]
+            [monger.operators :refer :all]))
 
 (declare generate-proset)
 
@@ -63,7 +65,43 @@
 (defn get-sections-by-article
   "Get all sections by article id"
   [db-component article-id]
+  (info "Getting sections by article id: " article-id)
   (db/get-sections-by-article-id db-component article-id))
+
+(defn get-completed-articles
+  "Get completed articles for a user"
+  [db-component user-id]
+  (let [db-instance (:db db-component)
+        ;; Step 1: Fetch user answers based on the user-id
+        completed-proset (mc/find-maps db-instance "user-answers" {:user-id user-id})
+        ;; Step 2: Extract proset-ids from these answers
+        proset-ids (map :proset-id completed-proset)
+        ;; Step 3: Fetch prosets based on these proset-ids
+        prosets (mc/find-maps db-instance "prosets" {:_id {$in proset-ids}})
+        ;; Step 4: Extract content-ids (section-ids) from the prosets
+        section-ids (map :content-id prosets)
+        ;; Step 5: Fetch sections based on these section-ids
+        sections (mc/find-maps db-instance "sections" {:_id {$in section-ids}})
+        ;; Step 6: Extract article-ids from these sections (renamed)
+        extracted-article-ids (set (map :article-id sections))
+        ;; Step 7: Fetch article titles based on these article-ids
+        articles-with-titles (map (fn [article-id]
+                                    (let [article (db/find-article-by-id db-component article-id)]
+                                      {:article-id article-id
+                                       :title (:title article)}))
+                                  extracted-article-ids)]
+    ;; Step 8: Return a list of article titles
+    articles-with-titles))
+
+
+
+
+(defn get-article-progress
+  "Get detailed progress for a specific article for a user"
+  [db-component user-id article-id]
+  (let [completed-sections (db/find-completed-sections-by-article db-component user-id article-id)
+        article (db/find-article-by-id db-component article-id)]
+    (assoc article :sections completed-sections)))
 
 (def sample-article-prompt
   {:title "Why we feel what we feel?"

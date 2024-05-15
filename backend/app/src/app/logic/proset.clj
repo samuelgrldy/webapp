@@ -5,7 +5,7 @@
 
 
 
-(defn check-answers
+(defn submit-answers
   "Check each submitted answers against the correct answers in the proset"
   [db-component {:keys [user-id proset-id submitted-answers]}]
   (let [proset (db/get-proset-by-id db-component proset-id)
@@ -21,6 +21,12 @@
                       :proset-id proset-id
                       :detailed-result detailed-result}]
     (db/store-answer db-component store-result)))
+
+(defn get-proset-by-id
+  "Get the proset based on the section id"
+  [db-component section-id]
+  (info "Proset: passing this id to the db: " section-id)
+  (db/get-proset-by-section-id db-component section-id))
 
 (def sample-submitted-answers
   [{:text-soal "What impact can an unhealthy diet have on the immune system?"

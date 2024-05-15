@@ -22,6 +22,12 @@
   (fn [db _]
     (:form-state db)))
 
+(re-frame/reg-sub
+  ::completed-sections
+  (fn [db _]
+    (:completed-sections db)))
+
+
 
 
 

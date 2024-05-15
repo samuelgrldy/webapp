@@ -34,6 +34,7 @@
   (info "Initiating get-sections-by-article controller...")
   (let [{:keys [article-id]} (get req :body)
         sections (article/get-sections-by-article db article-id)]
+    (info "Passing this article id to the db: " article-id)
     {:body {:data sections}}))
 
 (defn delete-article
@@ -44,13 +45,48 @@
 
 ;;===============proset related ctrl================
 
-(defn get-article-prosets
+(defn get-prosets-by-section
   [db req]
-  (info "Initiating get-article-prosets...")
-  ())
+  (info "Initiating get-article-prosets-by-section controller...")
+  (info "received req: " (pres req))
+  (info "=======================================================")
+  (let [{:keys [section-id]} (get req :body)
+        proset (proset/get-proset-by-id db section-id)]
+    (info "Passing this id to db: " section-id)
+    {:body {:data proset}}))
 
+(defn submit-answers
+  [db req]
+  (info "Initiating submit-proset controller...")
+  (let [{:keys [user-id proset-id submitted-answers]} (get req :body)
+        proset (proset/submit-answers  db {:user-id user-id
+                                            :proset-id proset-id
+                                            :submitted-answers submitted-answers})]
+    (info "received user-id: " user-id)
+    (info "received proset-id: " proset-id)
+    (info "received submitted-answers: ")
+    (pres submitted-answers)
+    {:body {:data proset}}))
 
 ;;===============user related ctrl================
+
+(defn get-user-progress
+  [db req]
+  (info "Initiating get-user-progress controller...")
+  (let [user-id (get-in req [:params :user-id])
+        completed-articles (article/get-completed-articles db user-id)]
+    (println "Getting user progress")
+    (pres completed-articles)
+    {:body {:data completed-articles}}))
+
+(defn get-article-progress
+  [db req]
+  (info "Initiating get-article-progress controller...")
+  (let [{:keys [user-id article-id]} (get req :body)
+        article-progress (article/get-article-progress db user-id article-id)]
+    (println "Getting article progress")
+    (pres article-progress)
+    {:body {:data article-progress}}))
 
 (defn reg-user
   "Controller for registering user"

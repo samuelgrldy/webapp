@@ -1,8 +1,9 @@
 (ns app.article.views
   (:require [app.utils :as u]
             [re-frame.core :as re-frame]
-            [app.article.events :as events]
             [app.events :as main-events]
+            [app.article.events :as events]
+            [app.proset.events :as proset-events]
             [app.article.subs :as subs]
             [app.article.components :as comp]))
 
@@ -51,7 +52,7 @@
          [:div
           [:h2 (:title section)]
           (u/html->hiccup (:content section))
-          [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/start-proset (:id section)])} "Practice"]])])))
+          [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::proset-events/start-proset (:_id section)])} "Practice"]])])))
 
 
 (defn article-page [article-id]
@@ -61,3 +62,24 @@
     [:div.container
      [:h1 "Article Details"]
      [display-sections]])) ;; Use the display-sections component
+
+;;================sections after proset views===============
+
+(defn section-page []
+  (let [sections (re-frame/subscribe [::subs/sections])
+        completed-sections (re-frame/subscribe [::subs/completed-sections])]
+    (fn []
+      [:div.container
+       (for [section @sections]
+         ^{:key (:id section)}
+         [:div.section
+          [:h3 (:title section)]
+          [:p (:content section)]
+          (if (contains? @completed-sections (:id section))
+            [:button.btn.btn-secondary
+             {:on-click #(re-frame/dispatch [::proset-events/redo-practice (:id section)])}
+             "Redo Practice"]
+            [:button.btn.btn-primary
+             {:on-click #(re-frame/dispatch [::proset-events/start-practice (:id section)])}
+             "Practice"])])])))
+

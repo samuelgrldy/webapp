@@ -1,7 +1,8 @@
 (ns app.logic.routes
   (:require [app.utils :refer :all]
             [app.plumbing.midware :as midware]
-            [app.logic.ctrl :as ctrl]))
+            [app.logic.ctrl :as ctrl]
+            [app.logic.proset :as proset]))
 
 
 (defn article-api-check
@@ -34,6 +35,10 @@
     ["/generate" {:post (partial midware-testing ctrl/gen-article db)}]
     ["/delete" {:post (partial midware-testing ctrl/delete-article db)}]]
    ["/practice"
-    ["/proset" {:get (partial midware-testing ctrl/get-article-prosets db)}]]
-   ["/generate-section-testing" {:post (partial article-api-check db)}]
+    ["/proset" {:post (partial midware-testing ctrl/get-prosets-by-section db)}]
+    ["/submit" {:post (partial midware-testing ctrl/submit-answers db)}]
+    ["/user-progress" {:get (partial midware-testing ctrl/get-user-progress db)}]
+    ["/article-progress" {:get (partial midware-testing ctrl/get-article-progress db)}]]
    ["/article-testing" {:get midware/api-check}]])
+
+

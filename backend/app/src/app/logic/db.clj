@@ -1,5 +1,6 @@
 (ns app.logic.db
   (:require [monger.collection :as mc]
+            [monger.operators :refer :all]
             [app.utils :refer :all]))
 
 
@@ -43,16 +44,6 @@
                                sections)]
     (mc/insert-batch db-instance "sections" sections-with-id)))
 
-(defn add-proset
-  "Insert the proset to the db"
-  [db-component proset]
-  (let [db-instance (:db db-component)
-        proset-with-id (assoc proset :_id (uuid))]
-    (info "====Adding the following proset to the db====")
-    (pres proset-with-id)
-    (info "=============================================")
-    (mc/insert-and-return db-instance "prosets" proset-with-id)))
-
 (defn deep-delete-article
   "Deletes an article, its sections, and its proset based on the article id"
   [db-component article-id]
@@ -65,6 +56,13 @@
     (map #(mc/remove db-instance "prosets" {:_id %}) section-ids)
     (info "Article, sections, and prosets related to '" article-id "' deleted successfully.")))
 
+(defn find-article-by-id
+  "Find an article by its ID"
+  [db-component article-id]
+  (let [db-instance (:db db-component)
+        query {:_id article-id}]
+    (mc/find-one-as-map db-instance "articles" query)))
+
 (defn get-sections-by-article-id
   "Get all the sections based on the article id"
   [db-component article-id]
@@ -72,14 +70,36 @@
         query {:article-id article-id}]
     (mc/find-maps db-instance "sections" query)))
 
-;;=====helper functions=========
-
 (defn get-section-ids
   "Get the section ids based on the article id"
   [db-component article-id]
   (let [db-instance (:db db-component)
         query {:article-id article-id}]
     (map :_id (mc/find-maps db-instance "sections" query))))
+
+(defn find-completed-sections
+  "Find sections that have been completed by the user from the prosets"
+  [db-component user-id]
+  (let [db-instance (:db db-component)]
+    (mc/find-maps db-instance "user-answers" {:user-id user-id})))
+
+(defn find-articles-by-sections
+  "Find articles that contain the given sections"
+  [db-component section-ids]
+  (let [db-instance (:db db-component)]
+    (mc/find-maps db-instance "articles" {:section-id {$in section-ids}})))
+
+
+(defn find-completed-sections-by-article
+  "Find sections that have been completed by the user for a specific article"
+  [db-component user-id article-id]
+  (let [db-instance (:db db-component)
+        section-ids (get-section-ids db-component article-id)]
+    (mc/find-maps db-instance "user-answers" {:user-id user-id :section-id {$in section-ids}})))
+
+
+
+;;=====helper functions=========
 
 (defn get-proset-ids
   "Get the proset ids based on the article id
@@ -92,8 +112,6 @@
              (map :_id (mc/find-one-as-map db-instance "prosets" query))))
          section-ids)))
 
-;;===========proset==============
-
 (defn get-prosets-by-id
   "Get all the proset based on the article id"
   [db-component article-id]
@@ -103,6 +121,26 @@
            (let [query {:content-id section-id}]
              (mc/find-one-as-map db-instance "prosets" query)))
          section-ids)))
+
+;;===========proset==============
+
+(defn add-proset
+  "Insert the proset to the db"
+  [db-component proset]
+  (let [db-instance (:db db-component)
+        proset-with-id (assoc proset :_id (uuid))]
+    (info "====Adding the following proset to the db====")
+    (pres proset-with-id)
+    (info "=============================================")
+    (mc/insert-and-return db-instance "prosets" proset-with-id)))
+
+(defn get-proset-by-section-id
+  "Get the proset based on the proset id"
+  [db-component section-id]
+  (let [db-instance (:db db-component)
+        query {:content-id section-id}]
+    (info "Fetching proset with this id from the db: " section-id)
+    (mc/find-one-as-map db-instance "prosets" query)))
 
 (defn get-proset-by-id
   "Get the proset based on the proset id"
